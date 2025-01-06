@@ -19,7 +19,7 @@ output "gateway_ids" {
 
   value = var.nat_gws != null ? {
     for gw_key, gw in var.nat_gws : yandex_vpc_gateway.nat_gw[gw_key].id => {
-      network_id = try(yandex_vpc_network.network[gw_key].id, gw_key)
+      network_id = var.networks != null && try(contains(keys(var.networks), gw_key), false) ? try(yandex_vpc_network.network[gw_key].id, gw_key) : null
       subnets_ids = var.route_table_private_subnets != null && try(var.route_table_private_subnets[gw_key].subnets_names, null) != null ? flatten([
         for sub in var.route_table_private_subnets[gw_key].subnets_names : [
           try(yandex_vpc_subnet.subnets["${gw_key}.${sub}"].id, null)
