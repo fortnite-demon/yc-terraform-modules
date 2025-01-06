@@ -111,10 +111,9 @@ resource "yandex_vpc_security_group" "sec_group" {
     content {
       description       = ingress.value.description
       from_port         = ingress.value.from_port
-      to_port           = ingress.value.to_prot
+      to_port           = ingress.value.to_port
       v4_cidr_blocks    = ingress.value.v4_cidr_blocks
       protocol          = ingress.value.protocol
-      predefined_target = ingress.value.predefined_target
     }
   }
 
@@ -124,10 +123,9 @@ resource "yandex_vpc_security_group" "sec_group" {
     content {
       description       = egress.value.description
       from_port         = egress.value.from_port
-      to_port           = egress.value.to_prot
+      to_port           = egress.value.to_port
       v4_cidr_blocks    = egress.value.v4_cidr_blocks
       protocol          = egress.value.protocol
-      predefined_target = egress.value.predefined_target
     }
   }
 }

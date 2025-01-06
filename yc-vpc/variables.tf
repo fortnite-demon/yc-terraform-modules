@@ -148,19 +148,17 @@ variable "sec_groups" {
     name = optional(string, "sec-group")
     ingress = optional(list(object({
       description       = optional(string)
-      from_port         = optional(number)
-      to_port           = optional(number)
-      v4_cidr_blocks    = optional(number)
+      from_port         = optional(number, -1)
+      to_port           = optional(number, -1)
+      v4_cidr_blocks    = optional(list(string))
       protocol          = string
-      predefined_target = optional(string)
     })), [])
     egress = optional(list(object({
       description       = optional(string)
-      from_port         = optional(number)
-      to_port           = optional(number)
-      v4_cidr_blocks    = optional(number)
+      from_port         = optional(number, -1)
+      to_port           = optional(number, -1)
+      v4_cidr_blocks    = optional(list(string))
       protocol          = string
-      predefined_target = optional(string)
     })), [])
   }))
 
