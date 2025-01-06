@@ -83,11 +83,10 @@ To use the module, you need to define variable values in your Terraform configur
 `name`: (Optional) The name of the security group, defaults to "sec-group".  
     `ingress`: (Optional) List of rules for inbound traffic.  
         `description`: (Optional) Description of the rule.  
-        from_port`: (Optional) The starting port.  
+        `from_port`: (Optional) The starting port.  
         `to_port`: (Optional) The ending port.  
         `v4_cidr_blocks`: (Optional) List of IPv4 CIDR blocks.  
         `protocol`: (Required) Protocol (e.g., tcp, udp, icmp).  
-        `predefined_target`: (Optional) A predefined target.  
     `egress`: (Optional) List of rules for outbound traffic. (Similar to `ingress`).
 ```
 
