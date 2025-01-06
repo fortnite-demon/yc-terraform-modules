@@ -44,7 +44,7 @@ this = {
 
 ## Creating subnets for an existing network:
 
-```
+```tf
 module "test_vpc" {
   source = "modules/yc-vpc"
 
@@ -103,7 +103,7 @@ this = {
 
 ## Creating networks without subnets:
 
-```
+```tf
 module "test_vpc" {
   source = "modules/yc-vpc"
 
@@ -133,7 +133,7 @@ this = {
 
 ## Creating networks in with subnets in two different folders:
 
-```
+```tf
 module "test_vpc" {
   source = "modules/yc-vpc"
 
@@ -201,7 +201,7 @@ this = {
 
 ## Creating subnets for existing networks in two different folders
 
-```
+```tf
 module "test_vpc" {
   source = "modules/yc-vpc"
 
