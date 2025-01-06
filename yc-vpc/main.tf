@@ -12,7 +12,7 @@ resource "yandex_vpc_network" "network" {
     } if net.user_net != true
   } : {}
 
-  name = each.key
+  name      = each.key
   folder_id = each.value.folder_id
 }
 
@@ -20,17 +20,16 @@ resource "yandex_vpc_subnet" "subnets" {
 
   for_each = var.networks != null ? tomap({
     for subnet in flatten([
-      for net_key, net in var.networks : [ try(net.subnets, null) != null ?
-        [ for sub_key, sub in net.subnets : {
-          network          = net_key
-          subnet_name      = sub_key
-          zone             = sub.zone
-          network_id       = net.user_net ? net_key : yandex_vpc_network.network[net_key].id
-          v4_cidr_blocks   = sub.v4_cidr_blocks
-          subnet_is_public = sub.public
-          folder_id        = lookup(net, "folder_id", lookup(sub, "folder_id", local.folder_id))
-          labels           = sub.labels
-        } ] : [] ]
+      for net_key, net in var.networks : [try(net.subnets, null) != null ?
+        [for sub_key, sub in net.subnets : {
+          network        = net_key
+          subnet_name    = sub_key
+          zone           = sub.zone
+          network_id     = net.user_net ? net_key : yandex_vpc_network.network[net_key].id
+          v4_cidr_blocks = sub.v4_cidr_blocks
+          folder_id      = lookup(net, "folder_id", lookup(sub, "folder_id", local.folder_id))
+          labels         = sub.labels
+      }] : []]
     ]) : "${subnet.network}.${subnet.subnet_name}" => subnet
   }) : {}
 
@@ -39,5 +38,33 @@ resource "yandex_vpc_subnet" "subnets" {
   v4_cidr_blocks = each.value.v4_cidr_blocks
   network_id     = each.value.network_id
   folder_id      = each.value.folder_id
-  labels = each.value.labels
+  labels         = each.value.labels
+}
+
+resource "yandex_vpc_gateway" "nat_gw" {
+
+  for_each = var.nat_gws != null ? var.nat_gws : {}
+
+  folder_id = try(yandex_vpc_network.network[each.key].folder_id, lookup(var.networks[each.key], "folder_id", local.folder_id))
+  name      = each.value.name
+
+  shared_egress_gateway {}
+}
+
+resource "yandex_vpc_route_table" "name" {
+
+  for_each = var.route_table_public_subnets != null ? var.route_table_public_subnets : {}
+
+  name = each.value.name
+  network_id = try(yandex_vpc_network.network[each.key].id, each.key)
+  folder_id = try(yandex_vpc_network.network[each.key].folder_id, lookup(var.networks[each.key], "folder_id", local.folder_id))
+
+  dynamic "static_route" {
+    for_each = each.value.static_routes
+
+    content {
+      destination_prefix = static_route.value.destination_prefix
+      next_hop_address = static_route.value.next_hop_address
+    }
+  }
 }

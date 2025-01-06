@@ -30,7 +30,6 @@ variable "networks" {
       `v4_cidr_blocks`: IPv4 CIDR blocks for this subnet
       `folder_id`: Id of the folder where the subnet will be located. If folder_id is specified for the network, 
                    the ID will be taken from there, otherwise from var.folder_id
-      `public`: Whether this subnet is public, you can choose to create a NAT gateway for public networks.
       `labels`: Labels for this subnet. 
 
   EOF
@@ -42,9 +41,47 @@ variable "networks" {
       zone           = string
       v4_cidr_blocks = list(string)
       folder_id      = optional(string)
-      public         = bool
       labels         = optional(map(string))
     })), null)
   }))
+  default = {
+    "enpe1n8pu1koihctrgs2" = {
+      user_net = true
+      subnets = {
+        "subnet" = {
+          zone = "ru-central1-a"
+          v4_cidr_blocks = [
+            "10.10.10.0/24"
+          ]
+        }
+      }
+    }
+  }
+}
+
+variable "nat_gws" {
+  description = <<EOF
+  (Optional) - Which networks should create a NAT gateway,
+  If you want to create a NAT in an existing network, specify its ID as the key for map()
+  EOF
+
+  type = map(object({
+    name = optional(string, "nat_gw")
+  }))
+  default = {}
+}
+
+variable "route_table_public_subnets" {
+  description = <<EOF
+  EOF
+
+  type = map(object({
+    name = optional(string, "route_table_public")
+    static_routes = list(object({
+      destination_prefix = string
+      next_hop_address = string
+    }))
+  }))
+
   default = null
 }
