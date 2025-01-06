@@ -39,7 +39,6 @@ variable "networks" {
     subnets = optional(map(object({
       zone           = string
       v4_cidr_blocks = list(string)
-      folder_id      = optional(string)
       labels         = optional(map(string))
     })), null)
   }))

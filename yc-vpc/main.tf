@@ -8,7 +8,7 @@ resource "yandex_vpc_network" "network" {
 
   for_each = var.networks != null ? {
     for net_key, net in var.networks : net_key => {
-      folder_id = net.folder_id
+      folder_id = net.folder_id != null ? net.folder_id : local.folder_id
     } if net.user_net != true
   } : {}
 
@@ -27,7 +27,7 @@ resource "yandex_vpc_subnet" "subnets" {
           zone           = sub.zone
           network_id     = net.user_net ? net_key : yandex_vpc_network.network[net_key].id
           v4_cidr_blocks = sub.v4_cidr_blocks
-          folder_id      = lookup(net, "folder_id", lookup(sub, "folder_id", local.folder_id))
+          folder_id      = lookup(net, "folder_id", local.folder_id)
           labels         = sub.labels
       }] : []]
     ]) : "${subnet.network}.${subnet.subnet_name}" => subnet
