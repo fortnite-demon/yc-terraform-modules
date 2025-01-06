@@ -44,19 +44,7 @@ variable "networks" {
       labels         = optional(map(string))
     })), null)
   }))
-  default = {
-    "enpe1n8pu1koihctrgs2" = {
-      user_net = true
-      subnets = {
-        "subnet" = {
-          zone = "ru-central1-a"
-          v4_cidr_blocks = [
-            "10.10.10.0/24"
-          ]
-        }
-      }
-    }
-  }
+  default = null
 }
 
 variable "nat_gws" {
@@ -66,7 +54,7 @@ variable "nat_gws" {
   EOF
 
   type = map(object({
-    name = optional(string, "nat_gw")
+    name = optional(string, "nat-gw")
   }))
   default = {}
 }
@@ -77,10 +65,28 @@ variable "route_table_public_subnets" {
 
   type = map(object({
     name = optional(string, "route_table_public")
+    subnets_names = list(string)
     static_routes = list(object({
       destination_prefix = string
       next_hop_address = string
     }))
+  }))
+
+  default = null
+  
+}
+
+variable "route_table_private_subnets" {
+  description = <<EOF
+  EOF
+
+  type = map(object({
+    name = optional(string, "route_table_private")
+    subnets_names = list(string)
+    static_routes = optional(list(object({
+      destination_prefix = string
+      next_hop_address = string
+    })), [])
   }))
 
   default = null

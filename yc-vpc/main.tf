@@ -38,6 +38,7 @@ resource "yandex_vpc_subnet" "subnets" {
   v4_cidr_blocks = each.value.v4_cidr_blocks
   network_id     = each.value.network_id
   folder_id      = each.value.folder_id
+  route_table_id = try(contains(var.route_table_public_subnets[each.value.network].subnets_names, each.value.subnet_name), false) ? yandex_vpc_route_table.route_pub_table[each.value.network].id : try(contains(var.route_table_private_subnets[each.value.network].subnets_names, each.value.subnet_name), false) ? yandex_vpc_route_table.route_private_table[each.value.network].id : null
   labels         = each.value.labels
 }
 
@@ -51,7 +52,7 @@ resource "yandex_vpc_gateway" "nat_gw" {
   shared_egress_gateway {}
 }
 
-resource "yandex_vpc_route_table" "name" {
+resource "yandex_vpc_route_table" "route_pub_table" {
 
   for_each = var.route_table_public_subnets != null ? var.route_table_public_subnets : {}
 
@@ -65,6 +66,33 @@ resource "yandex_vpc_route_table" "name" {
     content {
       destination_prefix = static_route.value.destination_prefix
       next_hop_address = static_route.value.next_hop_address
+    }
+  }
+}
+
+resource "yandex_vpc_route_table" "route_private_table" {
+
+  for_each = var.route_table_private_subnets != null ? var.route_table_private_subnets : {}
+
+  name = each.value.name
+  network_id = try(yandex_vpc_network.network[each.key].id, each.key)
+  folder_id = try(yandex_vpc_network.network[each.key].folder_id, lookup(var.networks[each.key], "folder_id", local.folder_id))
+
+  dynamic "static_route" {
+    for_each = each.value.static_routes
+
+    content {
+      destination_prefix = static_route.value.destination_prefix
+      next_hop_address = static_route.value.next_hop_address
+    }
+  }
+
+  dynamic "static_route" {
+    for_each = var.nat_gws != null && try(yandex_vpc_gateway.nat_gw[each.key].id, null) != null ? yandex_vpc_gateway.nat_gw : {}
+
+    content {
+      destination_prefix = "0.0.0.0/0"
+      gateway_id = yandex_vpc_gateway.nat_gw[each.key].id
     }
   }
 }
