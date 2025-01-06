@@ -1,6 +1,6 @@
 ## Security group for network
 
-```
+```tf
 module "test_vpc" {
   source = "modules/yc-vpc"
 
