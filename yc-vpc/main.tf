@@ -39,4 +39,5 @@ resource "yandex_vpc_subnet" "subnets" {
   v4_cidr_blocks = each.value.v4_cidr_blocks
   network_id     = each.value.network_id
   folder_id      = each.value.folder_id
+  labels = each.value.labels
 }
