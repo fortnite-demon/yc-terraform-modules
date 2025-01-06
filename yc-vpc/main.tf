@@ -56,16 +56,16 @@ resource "yandex_vpc_route_table" "route_pub_table" {
 
   for_each = var.route_table_public_subnets != null ? var.route_table_public_subnets : {}
 
-  name = each.value.name
+  name       = each.value.name
   network_id = try(yandex_vpc_network.network[each.key].id, each.key)
-  folder_id = try(yandex_vpc_network.network[each.key].folder_id, lookup(var.networks[each.key], "folder_id", local.folder_id))
+  folder_id  = try(yandex_vpc_network.network[each.key].folder_id, lookup(var.networks[each.key], "folder_id", local.folder_id))
 
   dynamic "static_route" {
     for_each = each.value.static_routes
 
     content {
       destination_prefix = static_route.value.destination_prefix
-      next_hop_address = static_route.value.next_hop_address
+      next_hop_address   = static_route.value.next_hop_address
     }
   }
 }
@@ -74,16 +74,16 @@ resource "yandex_vpc_route_table" "route_private_table" {
 
   for_each = var.route_table_private_subnets != null ? var.route_table_private_subnets : {}
 
-  name = each.value.name
+  name       = each.value.name
   network_id = try(yandex_vpc_network.network[each.key].id, each.key)
-  folder_id = try(yandex_vpc_network.network[each.key].folder_id, lookup(var.networks[each.key], "folder_id", local.folder_id))
+  folder_id  = try(yandex_vpc_network.network[each.key].folder_id, lookup(var.networks[each.key], "folder_id", local.folder_id))
 
   dynamic "static_route" {
     for_each = each.value.static_routes
 
     content {
       destination_prefix = static_route.value.destination_prefix
-      next_hop_address = static_route.value.next_hop_address
+      next_hop_address   = static_route.value.next_hop_address
     }
   }
 
@@ -92,7 +92,42 @@ resource "yandex_vpc_route_table" "route_private_table" {
 
     content {
       destination_prefix = "0.0.0.0/0"
-      gateway_id = yandex_vpc_gateway.nat_gw[each.key].id
+      gateway_id         = yandex_vpc_gateway.nat_gw[each.key].id
+    }
+  }
+}
+
+resource "yandex_vpc_security_group" "sec_group" {
+
+  for_each = var.sec_groups != null ? var.sec_groups : {}
+
+  name       = each.value.name
+  network_id = try(yandex_vpc_network.network[each.key].id, each.key)
+  folder_id  = try(yandex_vpc_network.network[each.key].folder_id, lookup(var.networks[each.key], "folder_id", local.folder_id))
+
+  dynamic "ingress" {
+    for_each = each.value.ingress
+
+    content {
+      description       = ingress.value.description
+      from_port         = ingress.value.from_port
+      to_port           = ingress.value.to_prot
+      v4_cidr_blocks    = ingress.value.v4_cidr_blocks
+      protocol          = ingress.value.protocol
+      predefined_target = ingress.value.predefined_target
+    }
+  }
+
+  dynamic "egress" {
+    for_each = each.value.egress
+
+    content {
+      description       = egress.value.description
+      from_port         = egress.value.from_port
+      to_port           = egress.value.to_prot
+      v4_cidr_blocks    = egress.value.v4_cidr_blocks
+      protocol          = egress.value.protocol
+      predefined_target = egress.value.predefined_target
     }
   }
 }
