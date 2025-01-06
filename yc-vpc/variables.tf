@@ -31,7 +31,6 @@ variable "networks" {
       `folder_id`: Id of the folder where the subnet will be located. If folder_id is specified for the network, 
                    the ID will be taken from there, otherwise from var.folder_id
       `labels`: Labels for this subnet. 
-
   EOF
 
   type = map(object({
@@ -57,13 +56,12 @@ variable "nat_gws" {
 
   `<network-name|network-id>`: The name or ID of an existing network for which you need to create a NAT gateway
     `name`: Name of the NAT gateway
-
   EOF
 
   type = map(object({
     name = optional(string, "nat-gw")
   }))
-  default = {}
+  default = null
 }
 
 variable "route_table_public_subnets" {
@@ -85,7 +83,6 @@ variable "route_table_public_subnets" {
     `static_routes` Block for configure static routes
       `destination_prefix`: Destination prefix
       `next_hop_address`: Next hop
-
   EOF
 
   type = map(object({
@@ -98,7 +95,6 @@ variable "route_table_public_subnets" {
   }))
 
   default = null
-
 }
 
 variable "route_table_private_subnets" {
@@ -115,7 +111,6 @@ variable "route_table_private_subnets" {
     `static_routes` Block for configure static routes
       `destination_prefix`: Destination prefix
       `next_hop_address`: Next hop
-
   EOF
 
   type = map(object({
